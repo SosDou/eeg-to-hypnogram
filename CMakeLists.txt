@@ -6,6 +6,7 @@ project(
     LANGUAGES C CXX
 )
 
+# 生成 compile_commands.json，供 VS Code IntelliSense 和 clangd 使用。
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(
@@ -19,9 +20,11 @@ include(
     "${PROJECT_SOURCE_DIR}/cmake/edflib.cmake"
 )
 
+# 核心静态库。
 add_library(
     eeg_to_hypnogram_core
     STATIC
+        src/core/dataset_builder.cpp
         src/core/edf_reader.cpp
         src/core/epoch.cpp
         src/core/feature_extraction.cpp
@@ -29,6 +32,7 @@ add_library(
         src/core/temporal_context.cpp
 )
 
+# 为核心库创建命名空间别名。
 add_library(
     eeg_to_hypnogram::core
     ALIAS
@@ -48,7 +52,10 @@ target_compile_features(
         cxx_std_17
 )
 
-find_package(Threads REQUIRED)
+find_package(
+    Threads
+    REQUIRED
+)
 
 target_link_libraries(
     eeg_to_hypnogram_core
@@ -68,7 +75,7 @@ set_target_properties(
     PROPERTIES
         CXX_EXTENSIONS OFF
 
-        # 方便后续链接进 Flutter/Android/Linux 共享库。
+        # 方便后续链接进 Flutter、Android 和 Linux 共享库。
         POSITION_INDEPENDENT_CODE ON
 )
 
@@ -105,9 +112,18 @@ if(EEG_TO_HYPNOGRAM_BUILD_CLI)
     )
 endif()
 
+# 启用 CTest，并创建 BUILD_TESTING 选项。
 include(CTest)
 
 if(BUILD_TESTING)
+    # Dataset Builder 的内部测试辅助函数位于 dataset_builder.cpp 中。
+    # 因此核心库本身也需要启用测试宏。
+    target_compile_definitions(
+        eeg_to_hypnogram_core
+        PRIVATE
+            EEG_TO_HYPNOGRAM_DATASET_BUILDER_TESTING=1
+    )
+
     # EDF Reader 测试。
     add_executable(
         edf_reader_test
@@ -125,7 +141,7 @@ if(BUILD_TESTING)
         COMMAND edf_reader_test
     )
 
-    # Epoch 测试
+    # Epoch 测试。
     add_executable(
         epoch_test
         tests/epoch_test.cpp
@@ -142,12 +158,14 @@ if(BUILD_TESTING)
         COMMAND epoch_test
     )
 
-    # Feature Extraction 测试
-    add_executable(feature_extraction_test
+    # Feature Extraction 测试。
+    add_executable(
+        feature_extraction_test
         tests/feature_extraction_test.cpp
     )
 
-    target_link_libraries(feature_extraction_test
+    target_link_libraries(
+        feature_extraction_test
         PRIVATE
             eeg_to_hypnogram::core
     )
@@ -157,7 +175,7 @@ if(BUILD_TESTING)
         COMMAND feature_extraction_test
     )
 
-    # Temporal Context 测试
+    # Temporal Context 测试。
     add_executable(
         temporal_context_test
         tests/temporal_context_test.cpp
@@ -172,5 +190,33 @@ if(BUILD_TESTING)
     add_test(
         NAME temporal_context_test
         COMMAND temporal_context_test
+    )
+
+    # Dataset Builder 测试。
+    add_executable(
+        dataset_builder_test
+        tests/dataset_builder_test.cpp
+    )
+
+    # 让测试文件能够看到 dataset_builder_testing 命名空间中的声明。
+    target_compile_definitions(
+        dataset_builder_test
+        PRIVATE
+            EEG_TO_HYPNOGRAM_DATASET_BUILDER_TESTING=1
+    )
+
+    target_link_libraries(
+        dataset_builder_test
+        PRIVATE
+            eeg_to_hypnogram::core
+
+            # Dataset Builder 测试会直接调用 EDFlib 写入合成 EDF 文件。
+            # 核心库对 EDFlib 是 PRIVATE 链接，因此这里必须再次显式链接。
+            eeg_to_hypnogram::edflib
+    )
+
+    add_test(
+        NAME dataset_builder_test
+        COMMAND dataset_builder_test
     )
 endif()
