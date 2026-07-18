@@ -24,6 +24,7 @@ add_library(
     STATIC
         src/core/edf_reader.cpp
         src/core/epoch.cpp
+        src/core/feature_extraction.cpp
         src/core/sleep_stage.cpp
 )
 
@@ -44,6 +45,14 @@ target_compile_features(
     eeg_to_hypnogram_core
     PUBLIC
         cxx_std_17
+)
+
+find_package(Threads REQUIRED)
+
+target_link_libraries(
+    eeg_to_hypnogram_core
+    PRIVATE
+        Threads::Threads
 )
 
 # EDFlib 没有出现在公共头文件中，所以保持 PRIVATE。
@@ -130,5 +139,20 @@ if(BUILD_TESTING)
     add_test(
         NAME epoch_test
         COMMAND epoch_test
+    )
+
+    # Feature Extraction 测试
+    add_executable(feature_extraction_test
+        tests/feature_extraction_test.cpp
+    )
+
+    target_link_libraries(feature_extraction_test
+        PRIVATE
+            eeg_to_hypnogram::core
+    )
+
+    add_test(
+        NAME feature_extraction_test
+        COMMAND feature_extraction_test
     )
 endif()
