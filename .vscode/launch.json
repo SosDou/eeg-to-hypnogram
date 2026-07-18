@@ -5,7 +5,7 @@
             "name": "Debug: EDF Reader Test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/edf_reader_test",
+            "program": "${workspaceFolder}/build/debug/edf_reader_test",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -35,7 +35,7 @@
             "name": "Debug: EDF Reader Integration Test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/edf_reader_test",
+            "program": "${workspaceFolder}/build/debug/edf_reader_test",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -69,7 +69,7 @@
             "name": "Debug: Epoch Test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/epoch_test",
+            "program": "${workspaceFolder}/build/debug/epoch_test",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -94,7 +94,7 @@
             "name": "Debug: Epoch Integration Test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/epoch_test",
+            "program": "${workspaceFolder}/build/debug/epoch_test",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -128,7 +128,7 @@
             "name": "Debug: Feature Extraction Test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/feature_extraction_test",
+            "program": "${workspaceFolder}/build/debug/feature_extraction_test",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -153,7 +153,7 @@
             "name": "Debug: Feature Extraction Integration Test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/feature_extraction_test",
+            "program": "${workspaceFolder}/build/debug/feature_extraction_test",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -171,6 +171,31 @@
                     "value": "28830"
                 }
             ],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/usr/bin/gdb",
+            "setupCommands": [
+                {
+                    "description": "启用 GDB STL 格式化",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "使用 Intel 汇编语法",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        },
+        {
+            "name": "Debug: Temporal Context Test",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/debug/temporal_context_test",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}",
+            "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
             "miDebuggerPath": "/usr/bin/gdb",

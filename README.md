@@ -32,7 +32,8 @@ eeg-to-hypnogram/
 │       ├── experiment_runner.h              # 实验配置、训练、预测与评估流程接口
 │       ├── feature_extraction.h             # EEG 特征提取接口
 │       ├── random_forest_baseline.h         # 随机森林训练、推理与模型持久化接口
-│       └── sleep_stage.h                    # 睡眠阶段枚举、转换与公共类型
+│       ├── sleep_stage.h                    # 睡眠阶段枚举、转换与公共类型
+│       └── temporal_context.h               # 时序上下文配置与特征拼接接口
 │
 ├── models/                                  # 本地训练模型与模型元数据
 │
@@ -44,16 +45,18 @@ eeg-to-hypnogram/
 │       ├── experiment_runner.cpp            # 训练、预测、评估与实验流程实现
 │       ├── feature_extraction.cpp           # 频带功率等 EEG 特征提取实现
 │       ├── random_forest_baseline.cpp       # 随机森林训练、推理和模型保存加载实现
-│       └── sleep_stage.cpp                  # 睡眠阶段解析与字符串转换实现
+│       ├── sleep_stage.cpp                  # 睡眠阶段解析与字符串转换实现
+│       └── temporal_context.h               # 相邻 epoch 特征的时序上下文拼接与边界处理
 │
 ├── tests/                                   # 核心模块单元测试与集成测试
 │   ├── dataset_builder_test.cpp             # 数据集构建模块测试
 │   ├── edf_reader_test.cpp                  # EDF 读取器单元测试与真实数据集成测试
-│   ├── epoch_test.cpp                       # 睡眠 epoch 构建与标签对齐测试
+│   ├── epoch_test.cpp                       # 睡眠 epoch 构建、标签对齐与真实数据集成测试
 │   ├── experiment_runner_test.cpp           # 实验配置与评估流程测试
-│   ├── feature_extraction_test.cpp          # EEG 特征提取结果测试
+│   ├── feature_extraction_test.cpp          # EEG 特征提取结果测试与真实数据集成测试
 │   ├── random_forest_baseline_test.cpp      # 随机森林训练、推理与模型持久化测试
-│   └── sleep_stage_test.cpp                 # 睡眠阶段枚举与转换测试
+│   ├── sleep_stage_test.cpp                 # 睡眠阶段枚举与转换测试
+│   └── temporal_context_test.h              # 时序上下文的测试
 │
 └── third_party/                             # 项目内固定版本的第三方依赖
     └── edflib/                              # Teuniz EDFlib 源码与许可证

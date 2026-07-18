@@ -99,7 +99,6 @@ namespace eeg_to_hypnogram
         // 新 EdfReader 会同时填充 onsetTicks 和 onsetSeconds，
         // 因此正常情况下直接使用 onsetTicks。
         //
-        // 为兼容手工构造测试数据或旧调用代码：
         // 当 onsetTicks 为 0、但 onsetSeconds 大于 0 时，
         // 从 onsetSeconds 回退转换。
         std::int64_t ResolveOnsetTicks(
@@ -145,8 +144,6 @@ namespace eeg_to_hypnogram
         // 1. durationTicks > 0；
         // 2. durationSeconds > 0；
         // 3. 回退为一个完整 epoch。
-        //
-        // 这保留了旧项目对缺失 duration 的处理行为。
         std::int64_t ResolveDurationTicks(
             const SleepStageAnnotation &annotation,
             std::int64_t epochTicks)
@@ -282,7 +279,6 @@ namespace eeg_to_hypnogram
                 const std::int64_t currentDurationTicks =
                     std::min(epochTicks, remainingTicks);
 
-                // 基础模式沿用旧项目语义：
                 // index 表示相对于录制起点的时间槽位。
                 const std::int64_t timelineIndex =
                     epochStartTicks / epochTicks;
@@ -341,7 +337,7 @@ namespace eeg_to_hypnogram
                 "config.cropAfterSeconds",
                 true);
 
-        // 保留旧项目行为：少于三条 annotation 时无法选择锚点。
+        // 少于三条 annotation 时无法选择锚点。
         if (annotations.size() < 3)
         {
             return {};
@@ -423,7 +419,7 @@ namespace eeg_to_hypnogram
             // MNE 风格模式只生成完整 epoch。
             //
             // 使用整数 ticks 判断剩余长度，
-            // 不需要旧代码中的 1e-9 浮点补偿。
+            // 不需要 1e-9 浮点补偿。
             for (std::int64_t startTicks =
                      segmentStartTicks;
                  segmentEndTicks - startTicks >= epochTicks;)

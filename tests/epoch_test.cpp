@@ -246,7 +246,6 @@ namespace
 
         annotation.stage = "W";
 
-        // 模拟只填写 seconds 的旧调用代码。
         annotation.onsetTicks = 0;
         annotation.onsetSeconds = 30.0;
 

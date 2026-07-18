@@ -74,7 +74,7 @@ namespace eeg_to_hypnogram
             const std::vector<SleepStageAnnotation> &annotations,
             double epochSeconds = 30.0);
 
-        // Sleep-EDF / 旧项目兼容的 MNE 风格构建方式：
+        // Sleep-EDF / MNE 风格构建方式：
         //
         // 1. 使用第二条 annotation 作为开始锚点；
         // 2. 使用倒数第二条 annotation 作为结束锚点；

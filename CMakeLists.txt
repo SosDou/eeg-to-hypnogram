@@ -26,6 +26,7 @@ add_library(
         src/core/epoch.cpp
         src/core/feature_extraction.cpp
         src/core/sleep_stage.cpp
+        src/core/temporal_context.cpp
 )
 
 add_library(
@@ -154,5 +155,22 @@ if(BUILD_TESTING)
     add_test(
         NAME feature_extraction_test
         COMMAND feature_extraction_test
+    )
+
+    # Temporal Context 测试
+    add_executable(
+        temporal_context_test
+        tests/temporal_context_test.cpp
+    )
+
+    target_link_libraries(
+        temporal_context_test
+        PRIVATE
+            eeg_to_hypnogram::core
+    )
+
+    add_test(
+        NAME temporal_context_test
+        COMMAND temporal_context_test
     )
 endif()
