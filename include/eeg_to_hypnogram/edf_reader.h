@@ -1,5 +1,7 @@
 #pragma once
 
+#include "eeg_to_hypnogram/sleep_stage.h"
+
 #include <cstdint>
 #include <optional>
 #include <string>
@@ -93,25 +95,7 @@ namespace eeg_to_hypnogram
         std::string text;
     };
 
-    // 从 Sleep-EDF annotation 解析出的睡眠阶段。
-    struct SleepStageAnnotation
-    {
-        // W / N1 / N2 / N3 / REM / UNKNOWN / MOVEMENT。
-        std::string stage;
-
-        // 开始时间。
-        std::int64_t onsetTicks = 0;
-        double onsetSeconds = 0.0;
-
-        // 持续时间。
-        std::int64_t durationTicks = -1;
-        double durationSeconds = -1.0;
-
-        // 原始 annotation 文本。
-        std::string rawText;
-    };
-
-    // EDF 文件读取器。
+        // EDF 文件读取器。
     //
     // 该类负责：
     // 1. EDF/EDF+ 文件打开和关闭

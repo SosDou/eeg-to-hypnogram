@@ -22,8 +22,9 @@ include(
 add_library(
     eeg_to_hypnogram_core
     STATIC
-        src/core/sleep_stage.cpp
         src/core/edf_reader.cpp
+        src/core/epoch.cpp
+        src/core/sleep_stage.cpp
 )
 
 add_library(
@@ -97,7 +98,7 @@ endif()
 include(CTest)
 
 if(BUILD_TESTING)
-    # EDF reader 测试。
+    # EDF Reader 测试。
     add_executable(
         edf_reader_test
         tests/edf_reader_test.cpp
@@ -112,5 +113,22 @@ if(BUILD_TESTING)
     add_test(
         NAME edf_reader_test
         COMMAND edf_reader_test
+    )
+
+    # Epoch 测试
+    add_executable(
+        epoch_test
+        tests/epoch_test.cpp
+    )
+
+    target_link_libraries(
+        epoch_test
+        PRIVATE
+            eeg_to_hypnogram::core
+    )
+
+    add_test(
+        NAME epoch_test
+        COMMAND epoch_test
     )
 endif()

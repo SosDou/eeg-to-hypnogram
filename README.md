@@ -24,15 +24,6 @@ eeg-to-hypnogram/
 │
 ├── datasets/                                # 本地数据集
 │
-├── docs/                                    # 各核心模块的技术实现文档
-│   ├── dataset_builder_doc.md               # 数据集构建模块技术文档
-│   ├── edf_reader_doc.md                    # EDF 与 Hypnogram 读取模块技术文档
-│   ├── epoch_doc.md                         # 睡眠 epoch 构建模块技术文档
-│   ├── experiment_runner_doc.md             # 实验、训练、预测与评估流程技术文档
-│   ├── feature_extraction_doc.md            # EEG 特征提取模块技术文档
-│   ├── random_forest_baseline_doc.md        # 随机森林模型模块技术文档
-│   └── sleep_stage_doc.md                   # 睡眠阶段公共类型技术文档
-│
 ├── include/
 │   └── eeg_to_hypnogram/
 │       ├── dataset_builder.h                # 训练与推理数据集构建接口
