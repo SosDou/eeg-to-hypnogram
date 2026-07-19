@@ -107,47 +107,6 @@ namespace
             parsedStage);
     }
 
-    void ThrowIfManifestFieldNotEmpty(
-        const std::vector<std::string> &values,
-        const std::string &category)
-    {
-        if (!values.empty())
-        {
-            throw std::invalid_argument(
-                "dataset manifest contains " + category + ": " +
-                std::to_string(values.size()));
-        }
-    }
-
-    void ValidateManifestForDatasetAssembly(
-        const eeg_to_hypnogram::DatasetManifest &manifest)
-    {
-        if (manifest.pairs.empty())
-        {
-            throw std::invalid_argument(
-                "dataset manifest contains complete pairs: 0");
-        }
-
-        ThrowIfManifestFieldNotEmpty(
-            manifest.unmatchedPsgFiles,
-            "unmatched PSG files");
-        ThrowIfManifestFieldNotEmpty(
-            manifest.unmatchedHypnogramFiles,
-            "unmatched Hypnogram files");
-        ThrowIfManifestFieldNotEmpty(
-            manifest.duplicatePsgKeys,
-            "duplicate PSG keys");
-        ThrowIfManifestFieldNotEmpty(
-            manifest.duplicateHypnogramKeys,
-            "duplicate Hypnogram keys");
-        ThrowIfManifestFieldNotEmpty(
-            manifest.duplicateInputPaths,
-            "duplicate input paths");
-        ThrowIfManifestFieldNotEmpty(
-            manifest.unrecognizedEdfFiles,
-            "unrecognized EDF files");
-    }
-
     std::vector<eeg_to_hypnogram::DatasetFilePair> ConvertManifestPairs(
         const eeg_to_hypnogram::DatasetManifest &manifest)
     {
@@ -714,7 +673,7 @@ namespace eeg_to_hypnogram
         std::vector<int> *yOut,
         FeaturePipelineSummary *summaryOut)
     {
-        ValidateManifestForDatasetAssembly(manifest);
+        eeg_to_hypnogram::ValidateManifestForDatasetAssembly(manifest);
 
         AppendDatasetFromPairs(
             ConvertManifestPairs(manifest),

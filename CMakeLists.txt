@@ -26,6 +26,7 @@ add_library(
     STATIC
         src/core/dataset_builder.cpp
         src/core/dataset_manifest.cpp
+        src/core/dataset_split.cpp
         src/core/edf_reader.cpp
         src/core/epoch.cpp
         src/core/experiment_runner.cpp
@@ -283,5 +284,20 @@ if(BUILD_TESTING)
     add_test(
         NAME dataset_manifest_test
         COMMAND dataset_manifest_test
+    )
+
+    # Dataset Split 测试
+    add_executable(dataset_split_test
+        tests/dataset_split_test.cpp
+    )
+
+    target_link_libraries(dataset_split_test
+        PRIVATE
+            eeg_to_hypnogram_core
+    )
+
+    add_test(
+        NAME dataset_split_test
+        COMMAND dataset_split_test
     )
 endif()

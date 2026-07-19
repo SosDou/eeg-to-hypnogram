@@ -104,6 +104,10 @@ namespace eeg_to_hypnogram
         const std::string &datasetDirectory,
         const DatasetManifestScanConfig &config = {});
 
+    // Validates that a manifest is clean enough for downstream pair assembly or
+    // subject-level splitting. Ignored files are allowed.
+    void ValidateManifestForDatasetAssembly(const DatasetManifest &manifest);
+
     // Splits complete file pairs by unique subjectId. All recordings from one
     // subject remain in one split. Counts are determined by largest remainder;
     // every split with a positive ratio is guaranteed at least one subject.

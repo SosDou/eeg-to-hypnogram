@@ -27,7 +27,8 @@ eeg-to-hypnogram/
 ├── include/
 │   └── eeg_to_hypnogram/
 │       ├── dataset_builder.h                # 训练与推理数据集构建接口
-│       ├── dataset_manifest.h               # Sleep-EDF 文件识别、配对、数据清单与受试者级划分接口
+│       ├── dataset_manifest.h               # Sleep-EDF 文件识别、配对与数据清单接口
+│       ├── dataset_split.h                  # 受试者级 Dataset Manifest train/test 划分接口
 │       ├── edf_reader.h                     # EDF 信号与 Hypnogram 注释读取接口
 │       ├── epoch.h                          # 30 秒睡眠 epoch 构建接口
 │       ├── experiment_runner.h              # 实验配置、训练、预测与评估流程接口
@@ -41,7 +42,8 @@ eeg-to-hypnogram/
 ├── src/
 │   └── core/
 │       ├── dataset_builder.cpp              # 数据读取、重采样与样本构建实现
-│       ├── dataset_manifest.cpp             # 实现数据集目录扫描、文件名解析、PSG/Hypnogram 配对与受试者级划分
+│       ├── dataset_manifest.cpp             # 实现数据集目录扫描、文件名解析与 PSG/Hypnogram 配对
+│       ├── dataset_split.cpp                # 实现受试者级 Dataset Manifest train/test 划分
 │       ├── edf_reader.cpp                   # EDF 信号读取与 Hypnogram 注释解析实现
 │       ├── epoch.cpp                        # 睡眠 epoch 切分与标签对齐实现
 │       ├── experiment_runner.cpp            # 训练、预测、评估与实验流程实现
@@ -53,6 +55,7 @@ eeg-to-hypnogram/
 ├── tests/                                   # 核心模块单元测试与集成测试
 │   ├── dataset_builder_test.cpp             # 数据集构建模块测试
 │   ├── dataset_manifest_test.cpp            # 测试文件识别、稳定配对、异常报告、受试者划分与真实数据扫描
+│   ├── dataset_split_test.cpp               # 受试者级 Manifest train/test 划分测试
 │   ├── edf_reader_test.cpp                  # EDF 读取器单元测试与真实数据集成测试
 │   ├── epoch_test.cpp                       # 睡眠 epoch 构建、标签对齐与真实数据集成测试
 │   ├── experiment_runner_test.cpp           # 实验配置与评估流程测试
