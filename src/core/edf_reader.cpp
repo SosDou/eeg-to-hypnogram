@@ -101,69 +101,6 @@ namespace
         return -1.0;
     }
 
-    // 将 Sleep-EDF annotation 文本转换为统一睡眠阶段。
-    bool TryParseSleepStage(
-        const std::string &rawText,
-        std::string *stageOut)
-    {
-        if (stageOut == nullptr)
-        {
-            return false;
-        }
-
-        const std::string normalized =
-            NormalizeLabel(rawText);
-
-        if (normalized == "sleep stage w")
-        {
-            *stageOut = "W";
-            return true;
-        }
-
-        if (normalized == "sleep stage 1" ||
-            normalized == "sleep stage n1")
-        {
-            *stageOut = "N1";
-            return true;
-        }
-
-        if (normalized == "sleep stage 2" ||
-            normalized == "sleep stage n2")
-        {
-            *stageOut = "N2";
-            return true;
-        }
-
-        if (normalized == "sleep stage 3" ||
-            normalized == "sleep stage 4" ||
-            normalized == "sleep stage n3")
-        {
-            *stageOut = "N3";
-            return true;
-        }
-
-        if (normalized == "sleep stage r" ||
-            normalized == "sleep stage rem")
-        {
-            *stageOut = "REM";
-            return true;
-        }
-
-        if (normalized == "sleep stage ?")
-        {
-            *stageOut = "UNKNOWN";
-            return true;
-        }
-
-        if (normalized == "movement time")
-        {
-            *stageOut = "MOVEMENT";
-            return true;
-        }
-
-        return false;
-    }
-
     // 将 EDFlib 原始头信息转换为项目内部结构。
     //
     // 该函数只存在于 cpp 文件中，因此公共头文件不需要知道
@@ -721,11 +658,11 @@ namespace eeg_to_hypnogram
 
         for (const EdfAnnotation &annotation : annotations)
         {
-            std::string stage;
+            SleepStage stage = SleepStage::Unknown;
 
             if (!TryParseSleepStage(
                     annotation.text,
-                    &stage))
+                    stage))
             {
                 continue;
             }
@@ -733,7 +670,7 @@ namespace eeg_to_hypnogram
             SleepStageAnnotation item;
 
             item.stage =
-                std::move(stage);
+                SleepStageToString(stage);
 
             item.onsetTicks =
                 annotation.onsetTicks;

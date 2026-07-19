@@ -127,6 +127,23 @@ if(BUILD_TESTING)
             EEG_TO_HYPNOGRAM_DATASET_BUILDER_TESTING=1
     )
 
+    # Sleep Stage 测试。
+    add_executable(
+        sleep_stage_test
+        tests/sleep_stage_test.cpp
+    )
+
+    target_link_libraries(
+        sleep_stage_test
+        PRIVATE
+            eeg_to_hypnogram::core
+    )
+
+    add_test(
+        NAME sleep_stage_test
+        COMMAND sleep_stage_test
+    )
+
     # EDF Reader 测试。
     add_executable(
         edf_reader_test

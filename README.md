@@ -33,7 +33,7 @@ eeg-to-hypnogram/
 │       ├── experiment_runner.h              # 实验配置、训练、预测与评估流程接口
 │       ├── feature_extraction.h             # EEG 特征提取接口
 │       ├── random_forest_baseline.h         # 随机森林训练、推理与模型持久化接口
-│       ├── sleep_stage.h                    # 睡眠阶段枚举、转换与公共类型
+│       ├── sleep_stage.h                    # 定义睡眠阶段枚举、标注结构及字符串与分类标签转换接口
 │       └── temporal_context.h               # 时序上下文配置与特征拼接接口
 │
 ├── models/                                  # 本地训练模型与模型元数据
@@ -47,7 +47,7 @@ eeg-to-hypnogram/
 │       ├── experiment_runner.cpp            # 训练、预测、评估与实验流程实现
 │       ├── feature_extraction.cpp           # 频带功率等 EEG 特征提取实现
 │       ├── random_forest_baseline.cpp       # 随机森林训练、推理和模型保存加载实现
-│       ├── sleep_stage.cpp                  # 睡眠阶段解析与字符串转换实现
+│       ├── sleep_stage.cpp                  # 实现 Sleep-EDF 阶段解析、规范化和五分类标签映射
 │       └── temporal_context.cpp             # 相邻 epoch 特征的时序上下文拼接与边界处理
 │
 ├── tests/                                   # 核心模块单元测试与集成测试
@@ -58,7 +58,7 @@ eeg-to-hypnogram/
 │   ├── experiment_runner_test.cpp           # 实验配置与评估流程测试
 │   ├── feature_extraction_test.cpp          # EEG 特征提取结果测试与真实数据集成测试
 │   ├── random_forest_baseline_test.cpp      # 随机森林训练、推理与模型持久化测试
-│   ├── sleep_stage_test.cpp                 # 睡眠阶段枚举与转换测试
+│   ├── sleep_stage_test.cpp                 # 测试睡眠阶段解析、N4 合并、标签转换与非法输入处理
 │   └── temporal_context_test.cpp            # 时序上下文的测试
 │
 └── third_party/                             # 项目内固定版本的第三方依赖

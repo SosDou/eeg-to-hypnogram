@@ -3,6 +3,7 @@
 #include "eeg_to_hypnogram/edf_reader.h"
 #include "eeg_to_hypnogram/epoch.h"
 #include "eeg_to_hypnogram/feature_extraction.h"
+#include "eeg_to_hypnogram/sleep_stage.h"
 #include "eeg_to_hypnogram/temporal_context.h"
 
 #include <algorithm>
@@ -91,29 +92,19 @@ namespace
 
     int StageToLabelIdImpl(const std::string &stage)
     {
-        if (stage == "W")
+        eeg_to_hypnogram::SleepStage parsedStage =
+            eeg_to_hypnogram::SleepStage::Unknown;
+
+        if (!eeg_to_hypnogram::TryParseSleepStage(
+                stage,
+                parsedStage))
         {
-            return 0;
-        }
-        if (stage == "N1")
-        {
-            return 1;
-        }
-        if (stage == "N2")
-        {
-            return 2;
-        }
-        if (stage == "N3")
-        {
-            return 3;
-        }
-        if (stage == "REM")
-        {
-            return 4;
+            throw std::invalid_argument(
+                "Unsupported stage label: " + stage);
         }
 
-        throw std::invalid_argument(
-            "Unsupported stage label: " + stage);
+        return eeg_to_hypnogram::SleepStageToClassLabel(
+            parsedStage);
     }
 
     std::vector<eeg_to_hypnogram::SleepEpoch> BuildFixedEpochs(

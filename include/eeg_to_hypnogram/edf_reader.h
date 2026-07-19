@@ -95,14 +95,14 @@ namespace eeg_to_hypnogram
         std::string text;
     };
 
-        // EDF 文件读取器。
+    // EDF 文件读取器。
     //
     // 该类负责：
     // 1. EDF/EDF+ 文件打开和关闭
     // 2. 文件头读取
     // 3. 信号样本读取
     // 4. annotation 读取
-    // 5. Sleep-EDF 睡眠阶段文本解析
+    // 5. 调用公共 Sleep Stage 模块解析 Sleep-EDF 睡眠阶段文本
     class EdfReader
     {
     public:
