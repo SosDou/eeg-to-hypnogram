@@ -28,6 +28,7 @@ add_library(
         src/core/edf_reader.cpp
         src/core/epoch.cpp
         src/core/feature_extraction.cpp
+        src/core/random_forest_baseline.cpp
         src/core/sleep_stage.cpp
         src/core/temporal_context.cpp
 )
@@ -218,5 +219,20 @@ if(BUILD_TESTING)
     add_test(
         NAME dataset_builder_test
         COMMAND dataset_builder_test
+    )
+
+    # 随机森林算法测试
+    add_executable(random_forest_baseline_test
+        tests/random_forest_baseline_test.cpp
+    )
+
+    target_link_libraries(random_forest_baseline_test
+        PRIVATE
+            eeg_to_hypnogram_core
+    )
+
+    add_test(
+        NAME random_forest_baseline_test
+        COMMAND random_forest_baseline_test
     )
 endif()
