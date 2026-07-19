@@ -27,6 +27,7 @@ add_library(
         src/core/dataset_builder.cpp
         src/core/edf_reader.cpp
         src/core/epoch.cpp
+        src/core/experiment_runner.cpp
         src/core/feature_extraction.cpp
         src/core/random_forest_baseline.cpp
         src/core/sleep_stage.cpp
@@ -234,5 +235,20 @@ if(BUILD_TESTING)
     add_test(
         NAME random_forest_baseline_test
         COMMAND random_forest_baseline_test
+    )
+
+    # 整个项目的运行器测试
+    add_executable(experiment_runner_test
+        tests/experiment_runner_test.cpp
+    )
+
+    target_link_libraries(experiment_runner_test
+        PRIVATE
+            eeg_to_hypnogram_core
+    )
+
+    add_test(
+        NAME experiment_runner_test
+        COMMAND experiment_runner_test
     )
 endif()
