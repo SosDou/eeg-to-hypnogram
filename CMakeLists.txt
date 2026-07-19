@@ -25,6 +25,7 @@ add_library(
     eeg_to_hypnogram_core
     STATIC
         src/core/dataset_builder.cpp
+        src/core/dataset_manifest.cpp
         src/core/edf_reader.cpp
         src/core/epoch.cpp
         src/core/experiment_runner.cpp
@@ -237,7 +238,7 @@ if(BUILD_TESTING)
         COMMAND random_forest_baseline_test
     )
 
-    # 整个项目的运行器测试
+    # Experiment Runner 测试
     add_executable(experiment_runner_test
         tests/experiment_runner_test.cpp
     )
@@ -250,5 +251,20 @@ if(BUILD_TESTING)
     add_test(
         NAME experiment_runner_test
         COMMAND experiment_runner_test
+    )
+
+    # Dataset Manifest 测试
+    add_executable(dataset_manifest_test
+        tests/dataset_manifest_test.cpp
+    )
+
+    target_link_libraries(dataset_manifest_test
+        PRIVATE
+            eeg_to_hypnogram_core
+    )
+
+    add_test(
+        NAME dataset_manifest_test
+        COMMAND dataset_manifest_test
     )
 endif()
