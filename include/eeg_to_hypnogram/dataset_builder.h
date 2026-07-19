@@ -11,10 +11,10 @@ namespace eeg_to_hypnogram
 
     struct DatasetFilePair
     {
-        // PSG（多导睡眠监测信号）文件路径。
+        // 多导睡眠监测信号（PSG）文件路径。
         std::string psgPath;
 
-        // Hypnogram（睡眠分期标注）文件路径。
+        // 睡眠分期标注（Hypnogram）文件路径。
         std::string hypPath;
     };
 
@@ -61,8 +61,8 @@ namespace eeg_to_hypnogram
         FeaturePipelineSummary *summaryOut = nullptr);
 
     // 从 DatasetManifest 中的完整 PSG/Hypnogram pairs 构建有标签数据集。
-    // Manifest 入口只做清单校验和路径适配，实际构建仍复用
-    // AppendDatasetFromPairs。
+    // 这个 Manifest 入口只负责清单校验和路径适配，实际构建仍复用
+    // 由 AppendDatasetFromPairs 负责。
     void AppendDatasetFromManifest(
         const DatasetManifest &manifest,
         const std::string &splitName,

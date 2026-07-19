@@ -226,6 +226,12 @@ namespace
 namespace eeg_to_hypnogram
 {
 
+    ClassificationMetrics ComputeClassificationMetrics(
+        const std::vector<std::vector<int>> &confusionMatrix)
+    {
+        return ComputeClassificationMetricsImpl(confusionMatrix);
+    }
+
     void PrintPythonStyleReport(const RandomForestResult &rf)
     {
         const auto &confusionMatrix = rf.confusionMatrix;
@@ -409,7 +415,7 @@ namespace eeg_to_hypnogram
                     forestConfig);
 
             const auto metrics =
-                ComputeClassificationMetricsImpl(
+                ComputeClassificationMetrics(
                     result.confusionMatrix);
 
             std::cout

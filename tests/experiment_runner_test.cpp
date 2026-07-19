@@ -188,9 +188,9 @@ namespace
             eeg_to_hypnogram::experiment_runner_testing::
                 ComputeClassificationMetrics(confusionMatrix);
 
-        // class 0: P=3/4, R=3/4, F1=3/4
-        // class 1: P=2/3, R=1/2, F1=4/7
-        // class 2: P=0,   R=0,   F1=0
+        // 类别 0：P=3/4，R=3/4，F1=3/4
+        // 类别 1：P=2/3，R=1/2，F1=4/7
+        // 类别 2：P=0，R=0，F1=0
         const double expectedMacroF1 =
             (0.75 + (4.0 / 7.0) + 0.0) / 3.0;
         const double expectedWeightedF1 =

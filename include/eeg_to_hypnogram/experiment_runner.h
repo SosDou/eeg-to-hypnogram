@@ -63,6 +63,11 @@ namespace eeg_to_hypnogram
         ClassificationMetrics testMetrics;
     };
 
+    // 从方形混淆矩阵计算准确率、macro F1 和 weighted F1。
+    // 行是真实类别，列是预测类别。
+    ClassificationMetrics ComputeClassificationMetrics(
+        const std::vector<std::vector<int>> &confusionMatrix);
+
     // 对已明确划分的训练集和测试集执行旧项目兼容的小规模网格搜索。
     // 返回结果按 macro F1 降序、accuracy 降序、trainAccuracy 升序排列。
     std::vector<GridSearchTrial> RunSmallGridSearch(

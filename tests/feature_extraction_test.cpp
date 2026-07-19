@@ -263,7 +263,7 @@ namespace
 
         eeg_to_hypnogram::EdfReader reader;
 
-        // PSG 文件不需要读取 annotation。
+        // 不需要为 PSG 文件读取 annotation。
         reader.Open(edfFilePath, false);
 
         const auto signalIndex =

@@ -11,7 +11,7 @@
 namespace
 {
 
-    // EDFlib 使用 100 ns tick。
+    // 读取精度采用 100 ns tick（EDFlib 约定）。
     constexpr double kEdfTimeDimension =
         static_cast<double>(EDFLIB_TIME_DIMENSION);
 
@@ -101,10 +101,7 @@ namespace
         return -1.0;
     }
 
-    // 将 EDFlib 原始头信息转换为项目内部结构。
-    //
-    // 该函数只存在于 cpp 文件中，因此公共头文件不需要知道
-    // edflib_hdr_t 的存在。
+    // 公共头文件不需要知道 edflib_hdr_t 的存在，因此这个函数只存在于 cpp 文件中。
     eeg_to_hypnogram::EdfHeaderInfo BuildHeaderInfo(
         const edflib_hdr_t &rawHeader,
         const std::string &filePath)
@@ -218,7 +215,7 @@ namespace
         return header;
     }
 
-    // Open() 构建头信息期间使用的临时句柄保护器。
+    // 在 Open() 构建头信息期间使用的临时句柄保护器。
     //
     // 如果 BuildHeaderInfo() 抛异常，临时句柄会被自动关闭。
     class PendingEdfHandle final

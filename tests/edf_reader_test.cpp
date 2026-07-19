@@ -94,7 +94,7 @@ namespace
             !reader.IsOpen(),
             "reader must remain closed after a failed Open()");
 
-        // Close() 应当可以安全重复调用。
+        // 应当可以安全重复调用 Close()。
         reader.Close();
         reader.Close();
     }

@@ -296,14 +296,14 @@ namespace
                     config);
 
         // 锚点：
-        // annotations[1]      -> 30 秒
-        // annotations[-2]     -> 180 秒
+        // 标注[1]      -> 30 秒
+        // 标注[-2]     -> 180 秒
         //
-        // crop = [30, 180)
+        // 裁剪区间 = [30, 180)
         //
-        // W:  30, 60
-        // MOVEMENT: 被过滤
-        // N2: 120, 150
+        // 清醒：30, 60
+        // 运动阶段：被过滤
+        // 第二阶段 N2：120, 150
         Require(
             epochs.size() == 4,
             "MNE-style build should create 4 epochs.");
@@ -369,7 +369,7 @@ namespace
                     180.0,
                     config);
 
-        // crop = [30, 90)
+        // 裁剪区间 = [30, 90)
         Require(
             epochs.size() == 2,
             "MNE-style build should keep MOVEMENT when filtering is disabled.");
@@ -403,9 +403,9 @@ namespace
                     180.0,
                     config);
 
-        // anchor start = 30
-        // anchor end = 75
-        // N1 与 crop 的交集为 45 秒，只保留一个完整 30 秒 epoch。
+        // 锚点起点 = 30
+        // 锚点终点 = 75
+        // 第一阶段 N1 与裁剪区间的交集为 45 秒，只保留一个完整 30 秒时段。
         Require(
             epochs.size() == 1,
             "MNE-style build must drop partial epochs.");

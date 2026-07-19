@@ -9,14 +9,14 @@
 namespace eeg_to_hypnogram
 {
 
-    // Subject-level split configuration for manifest partitioning.
+    // 用于清单分区的受试者级划分配置。
     struct DatasetSplitConfig
     {
         double testFraction = 0.2;
         std::uint32_t randomSeed = 42;
     };
 
-    // Train/test manifest split with subject membership metadata.
+    // 带有受试者归属元数据的 train/test 清单划分结果。
     struct DatasetManifestSplit
     {
         DatasetManifest train;
@@ -26,8 +26,8 @@ namespace eeg_to_hypnogram
         std::vector<std::string> testSubjectIds;
     };
 
-    // Splits a clean DatasetManifest by subjectId.
-    // All pairs from one subject remain in the same output manifest.
+    // 按 subjectId 划分一个干净的 DatasetManifest。
+    // 来自同一受试者的所有 pair 都会保留在同一个输出清单中。
     DatasetManifestSplit SplitDatasetManifestBySubject(
         const DatasetManifest &manifest,
         const DatasetSplitConfig &config = {});

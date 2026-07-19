@@ -13,7 +13,7 @@ namespace eeg_to_hypnogram
     namespace
     {
 
-        // EDFlib 使用 100 ns 作为一个时间 tick。
+        // 读取精度采用 100 ns 作为一个时间 tick（EDFlib 约定）。
         // 1 秒 = 10,000,000 ticks。
         constexpr std::int64_t kTicksPerSecond = 10'000'000;
 
@@ -172,7 +172,7 @@ namespace eeg_to_hypnogram
 
         // 验证 annotation 按开始时间非递减排列。
         //
-        // MNE 风格锚点依赖 annotation 顺序，因此不允许静默接受乱序输入。
+        // 在 MNE 风格下，锚点依赖 annotation 顺序，因此不允许静默接受乱序输入。
         void ValidateAnnotationOrder(
             const std::vector<SleepStageAnnotation> &annotations)
         {
@@ -279,7 +279,7 @@ namespace eeg_to_hypnogram
                 const std::int64_t currentDurationTicks =
                     std::min(epochTicks, remainingTicks);
 
-                // index 表示相对于录制起点的时间槽位。
+                // 其中 index 表示相对于录制起点的时间槽位。
                 const std::int64_t timelineIndex =
                     epochStartTicks / epochTicks;
 
@@ -416,7 +416,7 @@ namespace eeg_to_hypnogram
                 continue;
             }
 
-            // MNE 风格模式只生成完整 epoch。
+            // 在 MNE 风格模式下，只生成完整 epoch。
             //
             // 使用整数 ticks 判断剩余长度，
             // 不需要 1e-9 浮点补偿。
@@ -462,7 +462,7 @@ namespace eeg_to_hypnogram
                        right.startTicks;
             });
 
-        // MNE 风格输出使用过滤后的连续索引。
+        // 这种 MNE 风格输出使用过滤后的连续索引。
         for (std::size_t index = 0;
              index < epochs.size();
              ++index)

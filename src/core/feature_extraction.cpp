@@ -24,7 +24,7 @@ namespace
                                                 double maxFrequencyHz,
                                                 std::vector<double> *freqsOut)
     {
-        // Welch PSD 的输入保护：至少需要 2 个采样点，且采样率/FFT 参数合法。
+        // 输入保护：Welch PSD 至少需要 2 个采样点，且采样率/FFT 参数合法。
         if (samples.size() < 2)
         {
             throw std::invalid_argument("Each channel epoch must contain at least 2 samples.");
@@ -59,7 +59,7 @@ namespace
             nFreqBins = std::min(nFreqBinsFull, maxBin + 1);
         }
 
-        // Hann 窗：降低频谱泄漏。
+        // 汉宁窗：降低频谱泄漏。
         std::vector<double> window(nPerSeg, 0.0);
         for (std::size_t i = 0; i < nPerSeg; ++i)
         {
@@ -141,7 +141,7 @@ namespace
 
         for (double &value : psd)
         {
-            // Welch 的核心：对所有分段功率谱取平均，降低方差。
+            // 核心流程：对所有分段功率谱取平均，降低方差（Welch）。
             value /= static_cast<double>(segmentCount);
         }
 
@@ -160,7 +160,7 @@ namespace
                                                      const eeg_to_hypnogram::MultitaperConfig &cfg,
                                                      std::vector<double> *freqsOut)
     {
-        // Multitaper 版本的基本参数检查。
+        // 多重 taper 版本的基本参数检查。
         if (samples.size() < 2)
         {
             throw std::invalid_argument("Each channel epoch must contain at least 2 samples.");
@@ -185,7 +185,7 @@ namespace
         // 对每个 taper 分别估计谱，再取平均。
         for (int taperIdx = 1; taperIdx <= cfg.numTapers; ++taperIdx)
         {
-            // Orthonormal sine tapers are used here as a lightweight approximation to DPSS tapers.
+            // 这里使用正交化正弦 taper 作为 DPSS taper 的轻量近似。
             std::vector<double> taper(n, 0.0);
             for (std::size_t t = 0; t < n; ++t)
             {

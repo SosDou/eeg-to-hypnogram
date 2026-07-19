@@ -245,8 +245,8 @@ namespace
             ++counts[destination];
         }
 
-        // A positive-ratio split must not be empty. If largest remainder left one
-        // empty, deterministically borrow from the largest split that has > 1.
+        // 正比例 split 不允许为空。如果最大余数法算出一个空 split，
+        // 就确定性地从样本数大于 1 的最大 split 中借一个。
         for (std::size_t target = 0; target < ratios.size(); ++target)
         {
             if (ratios[target] <= 0.0 || counts[target] > 0)
@@ -358,10 +358,10 @@ namespace eeg_to_hypnogram
     {
         const std::string filename = PortableFilename(path);
 
-        // Recording code layout used by both Sleep-EDF cohorts:
-        //   SC + 3 digits + night + acquisition letter + variant/scorer
-        //   ST + 3 digits + night + acquisition letter + variant/scorer
-        // PSG files use variant 0. Hypnogram files use the scorer identifier.
+        // 两种 Sleep-EDF 受试者队列通用的录制编码格式：
+        //   以 SC + 3 位数字 + 夜次 + 采集字母 + 变体/评分者 的形式
+        //   以 ST + 3 位数字 + 夜次 + 采集字母 + 变体/评分者 的形式
+        //   睡眠监测图（PSG）文件使用变体 0，Hypnogram 文件使用评分者标识。
         static const std::regex pattern(
             R"(^(SC|ST)([0-9]{3})([12])([A-Z])([A-Z0-9])-(PSG|HYPNOGRAM)\.EDF$)",
             std::regex::icase);
@@ -382,7 +382,7 @@ namespace eeg_to_hypnogram
         const bool isPsg = kind == "PSG";
         const bool isHypnogram = kind == "HYPNOGRAM";
 
-        // Official Sleep-EDF PSG names use 0 as the eighth recording character.
+        // 官方 Sleep-EDF PSG 文件名把 0 作为第八个录制字符。
         if (isPsg && variant != "0")
         {
             return std::nullopt;

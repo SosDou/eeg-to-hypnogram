@@ -29,7 +29,7 @@ namespace eeg_to_hypnogram
         double physicalMin = 0.0;
         double physicalMax = 0.0;
 
-        // ADC 数字值范围。
+        // 模数转换器（ADC）数字值范围。
         int digitalMin = 0;
         int digitalMax = 0;
 
@@ -43,13 +43,13 @@ namespace eeg_to_hypnogram
         std::string transducer;
     };
 
-    // EDF 文件头信息摘要。
+    // 文件头信息摘要（EDF）。
     struct EdfHeaderInfo
     {
-        // EDF 文件路径，仅用于日志和调试。
+        // 文件路径（EDF），仅用于日志和调试。
         std::string filePath;
 
-        // EDFlib 文件类型。
+        // 文件类型（EDFlib）。
         int fileType = 0;
 
         // 普通信号数量，不包含 annotation 虚拟通道。
@@ -71,7 +71,7 @@ namespace eeg_to_hypnogram
         int startTimeMinute = 0;
         int startTimeSecond = 0;
 
-        // annotation 数量。
+        // 标注数量。
         std::int64_t annotationCount = 0;
 
         // 各信号通道信息。
@@ -81,21 +81,21 @@ namespace eeg_to_hypnogram
     // 单条 EDF annotation。
     struct EdfAnnotation
     {
-        // annotation 起始时间，单位为 100 ns tick。
+        // 标注起始时间，单位为 100 ns tick。
         std::int64_t onsetTicks = 0;
 
-        // annotation 持续时间，单位为 100 ns tick。
+        // 标注持续时间，单位为 100 ns tick。
         // 小于 0 表示未提供。
         std::int64_t durationTicks = -1;
 
-        // EDFlib 返回的原始持续时间字符串。
+        // 原始持续时间字符串（由 EDFlib 返回）。
         std::string durationSecondsText;
 
-        // annotation 正文。
+        // 标注正文。
         std::string text;
     };
 
-    // EDF 文件读取器。
+    // 文件读取器（EDF）。
     //
     // 该类负责：
     // 1. EDF/EDF+ 文件打开和关闭
@@ -109,7 +109,7 @@ namespace eeg_to_hypnogram
         EdfReader() = default;
         ~EdfReader() noexcept;
 
-        // EDF 句柄不允许复制。
+        // 不允许复制 EDF 句柄。
         EdfReader(const EdfReader &) = delete;
         EdfReader &operator=(const EdfReader &) = delete;
 
@@ -119,10 +119,10 @@ namespace eeg_to_hypnogram
 
         // 打开 EDF 文件。
         //
-        // readAnnotations=true：
+        // 当 readAnnotations=true 时：
         // 在打开阶段读取所有 annotation。
         //
-        // readAnnotations=false：
+        // 当 readAnnotations=false 时：
         // 不读取 annotation，后续调用 annotation 相关函数会抛异常。
         void Open(
             const std::string &filePath,
@@ -153,7 +153,7 @@ namespace eeg_to_hypnogram
         // 读取指定信号的全部物理值样本。
         //
         // 这是 CLI 便利接口。
-        // WebAssembly 和 Flutter 层应优先使用窗口读取接口。
+        // 窗口读取接口应优先供 WebAssembly 和 Flutter 层使用。
         [[nodiscard]] std::vector<double> ReadAllPhysicalSamples(
             int signalIndex) const;
 
@@ -201,7 +201,7 @@ namespace eeg_to_hypnogram
         [[nodiscard]] static std::string BuildOpenErrorMessage(
             int edflibErrorCode);
 
-        // EDFlib 文件句柄，-1 表示未打开。
+        // 文件句柄（EDFlib），-1 表示未打开。
         int handle_ = -1;
 
         // 打开文件时是否读取了 annotation。

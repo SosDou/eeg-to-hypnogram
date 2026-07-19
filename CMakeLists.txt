@@ -34,6 +34,7 @@ add_library(
         src/core/random_forest_baseline.cpp
         src/core/sleep_stage.cpp
         src/core/temporal_context.cpp
+        src/core/training_pipeline.cpp
 )
 
 # 为核心库创建命名空间别名。
@@ -299,5 +300,21 @@ if(BUILD_TESTING)
     add_test(
         NAME dataset_split_test
         COMMAND dataset_split_test
+    )
+
+    # Training Pipeline 测试
+    add_executable(training_pipeline_test
+        tests/training_pipeline_test.cpp
+    )
+
+    target_link_libraries(training_pipeline_test
+        PRIVATE
+            eeg_to_hypnogram_core
+            eeg_to_hypnogram::edflib
+    )
+
+    add_test(
+        NAME training_pipeline_test
+        COMMAND training_pipeline_test
     )
 endif()

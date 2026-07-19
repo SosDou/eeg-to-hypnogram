@@ -879,8 +879,8 @@ namespace
         eeg_to_hypnogram::DatasetManifest manifest =
             MakeManifestFromSyntheticPairs({second, first});
 
-        // Deliberately make the manifest order differ from key sort order.
-        // Dataset Builder must consume manifest.pairs as-is.
+        // 故意让 manifest 的顺序与 key 排序顺序不同。
+        // 数据集构建器必须原样消费 manifest.pairs。
         manifest.pairs[0].subjectId = "SYN002";
         manifest.pairs[0].recordingId = "SYN0021A";
         manifest.pairs[1].subjectId = "SYN001";

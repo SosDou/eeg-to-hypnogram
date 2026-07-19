@@ -9,16 +9,16 @@
 namespace eeg_to_hypnogram
 {
 
-    // Epoch 构建配置。
+    // 时段构建配置。
     struct EpochBuildConfig
     {
         // 每个 epoch 的持续时间，默认 30 秒。
         double epochSeconds = 30.0;
 
-        // MNE 风格裁剪中，在开始锚点之前保留的时间。
+        // 在 MNE 风格裁剪中，开始锚点之前保留的时间。
         double cropBeforeSeconds = 30.0 * 60.0;
 
-        // MNE 风格裁剪中，在结束锚点之后保留的时间。
+        // 在 MNE 风格裁剪中，结束锚点之后保留的时间。
         double cropAfterSeconds = 30.0 * 60.0;
 
         // 是否丢弃 UNKNOWN 和 MOVEMENT 阶段。
@@ -31,33 +31,33 @@ namespace eeg_to_hypnogram
     // 后续 DatasetBuilder 应根据 startTicks 或 startSeconds 提取对应信号。
     struct SleepEpoch
     {
-        // Epoch 索引。
+        // 时段索引。
         //
-        // BuildSleepEpochs：
+        // 其中 BuildSleepEpochs 的含义是：
         //   表示相对于录制起点的时间槽位。
         //
-        // BuildSleepEpochsMneStyle：
+        // 其中 BuildSleepEpochsMneStyle 的含义是：
         //   表示过滤、排序后的连续结果索引。
         //
         // 因此下游不得直接使用 index 计算 EEG 样本位置，
         // 应使用 startTicks 或 startSeconds。
         std::int64_t index = 0;
 
-        // Epoch 相对于录制起点的开始时间。
+        // 时段相对于录制起点的开始时间。
         std::int64_t startTicks = 0;
         double startSeconds = 0.0;
 
-        // Epoch 的实际持续时间。
+        // 时段的实际持续时间。
         //
         // 基础模式下，最后一个 epoch 可能不足 epochSeconds。
-        // MNE 风格模式下，只生成完整 epoch。
+        // 在 MNE 风格模式下，只生成完整时段。
         std::int64_t durationTicks = 0;
         double durationSeconds = 0.0;
 
-        // W / N1 / N2 / N3 / REM / UNKNOWN / MOVEMENT。
+        // 阶段取值：W / N1 / N2 / N3 / REM / UNKNOWN / MOVEMENT。
         std::string stage;
 
-        // annotation 原始文本。
+        // 标注原始文本。
         std::string rawText;
     };
 
@@ -74,7 +74,7 @@ namespace eeg_to_hypnogram
             const std::vector<SleepStageAnnotation> &annotations,
             double epochSeconds = 30.0);
 
-        // Sleep-EDF / MNE 风格构建方式：
+        // 采用 Sleep-EDF / MNE 风格的构建方式：
         //
         // 1. 使用第二条 annotation 作为开始锚点；
         // 2. 使用倒数第二条 annotation 作为结束锚点；
