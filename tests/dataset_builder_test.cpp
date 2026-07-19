@@ -4,6 +4,7 @@
 
 #include "eeg_to_hypnogram/dataset_builder.h"
 
+#include "eeg_to_hypnogram/dataset_manifest.h"
 #include "eeg_to_hypnogram/edf_reader.h"
 #include "eeg_to_hypnogram/feature_extraction.h"
 #include "eeg_to_hypnogram/dataset_builder.h"
@@ -98,6 +99,37 @@ namespace
                     ", rhs=" + std::to_string(rhs[index]));
             }
         }
+    }
+
+    void RequireFeatureMatricesEqual(
+        const std::vector<std::vector<double>> &lhs,
+        const std::vector<std::vector<double>> &rhs,
+        const std::string &message)
+    {
+        Require(lhs.size() == rhs.size(), message + " (row count mismatch)");
+
+        for (std::size_t rowIndex = 0;
+             rowIndex < lhs.size();
+             ++rowIndex)
+        {
+            Require(
+                lhs[rowIndex] == rhs[rowIndex],
+                message + " (row " + std::to_string(rowIndex) + " changed)");
+        }
+    }
+
+    void RequireSummaryEqual(
+        const eeg_to_hypnogram::FeaturePipelineSummary &lhs,
+        const eeg_to_hypnogram::FeaturePipelineSummary &rhs,
+        const std::string &message)
+    {
+        Require(lhs.epochSeconds == rhs.epochSeconds, message + " (epochSeconds)");
+        Require(lhs.targetSampleRateHz == rhs.targetSampleRateHz, message + " (targetSampleRateHz)");
+        Require(lhs.channelCount == rhs.channelCount, message + " (channelCount)");
+        Require(lhs.baseFeatureDim == rhs.baseFeatureDim, message + " (baseFeatureDim)");
+        Require(lhs.temporalFeatureDim == rhs.temporalFeatureDim, message + " (temporalFeatureDim)");
+        Require(lhs.channelLabels == rhs.channelLabels, message + " (channelLabels)");
+        Require(lhs.channelSampleRatesHz == rhs.channelSampleRatesHz, message + " (channelSampleRatesHz)");
     }
 
     class TemporaryDirectory final
@@ -439,6 +471,32 @@ namespace
         std::string psgPath;
         std::string hypnogramPath;
     };
+
+    eeg_to_hypnogram::DatasetManifest MakeManifestFromSyntheticPairs(
+        const std::vector<SyntheticPair> &pairs)
+    {
+        eeg_to_hypnogram::DatasetManifest manifest;
+        manifest.pairs.reserve(pairs.size());
+
+        for (std::size_t index = 0;
+             index < pairs.size();
+             ++index)
+        {
+            const std::string identifier =
+                std::to_string(index + 1);
+
+            manifest.pairs.push_back(
+                {
+                    "SYN" + identifier,
+                    "SYN" + identifier + "1A",
+                    "1",
+                    pairs[index].psgPath,
+                    pairs[index].hypnogramPath,
+                });
+        }
+
+        return manifest;
+    }
 
     SyntheticPair CreateSyntheticPair(
         const std::filesystem::path &directory,
@@ -807,6 +865,178 @@ namespace
         }
     }
 
+    void TestManifestEntryMatchesPairEntryAndPreservesOrder(
+        const SyntheticPair &first,
+        const SyntheticPair &second)
+    {
+        const eeg_to_hypnogram::TemporalContextConfig context = NoContext();
+
+        const std::vector<eeg_to_hypnogram::DatasetFilePair> filePairs = {
+            {second.psgPath, second.hypnogramPath},
+            {first.psgPath, first.hypnogramPath},
+        };
+
+        eeg_to_hypnogram::DatasetManifest manifest =
+            MakeManifestFromSyntheticPairs({second, first});
+
+        // Deliberately make the manifest order differ from key sort order.
+        // Dataset Builder must consume manifest.pairs as-is.
+        manifest.pairs[0].subjectId = "SYN002";
+        manifest.pairs[0].recordingId = "SYN0021A";
+        manifest.pairs[1].subjectId = "SYN001";
+        manifest.pairs[1].recordingId = "SYN0011A";
+
+        std::vector<std::vector<double>> pairX;
+        std::vector<int> pairY;
+        eeg_to_hypnogram::FeaturePipelineSummary pairSummary;
+
+        eeg_to_hypnogram::AppendDatasetFromPairs(
+            filePairs,
+            "manifest-reference",
+            context,
+            &pairX,
+            &pairY,
+            &pairSummary);
+
+        std::vector<std::vector<double>> manifestX;
+        std::vector<int> manifestY;
+        eeg_to_hypnogram::FeaturePipelineSummary manifestSummary;
+
+        eeg_to_hypnogram::AppendDatasetFromManifest(
+            manifest,
+            "manifest-adapter",
+            context,
+            &manifestX,
+            &manifestY,
+            &manifestSummary);
+
+        RequireFeatureMatricesEqual(
+            manifestX,
+            pairX,
+            "Manifest adapter must preserve feature rows exactly.");
+        Require(
+            manifestY == pairY,
+            "Manifest adapter must preserve labels and pair order.");
+        RequireSummaryEqual(
+            manifestSummary,
+            pairSummary,
+            "Manifest adapter summary changed.");
+    }
+
+    void TestManifestValidationAndIgnoredFiles(
+        const SyntheticPair &pair)
+    {
+        const eeg_to_hypnogram::TemporalContextConfig context = NoContext();
+
+        std::vector<std::vector<double>> X;
+        std::vector<int> y;
+
+        RequireThrows<std::invalid_argument>(
+            [&]
+            {
+                eeg_to_hypnogram::DatasetManifest emptyManifest;
+                eeg_to_hypnogram::AppendDatasetFromManifest(
+                    emptyManifest,
+                    "empty-manifest",
+                    context,
+                    &X,
+                    &y,
+                    nullptr);
+            },
+            "An empty manifest must be rejected.");
+
+        struct DirtyManifestCase
+        {
+            std::string name;
+            std::function<void(eeg_to_hypnogram::DatasetManifest *)> mutate;
+        };
+
+        const std::vector<DirtyManifestCase> dirtyCases = {
+            {
+                "unmatched PSG",
+                [](eeg_to_hypnogram::DatasetManifest *manifest)
+                {
+                    manifest->unmatchedPsgFiles.push_back("unmatched-PSG.edf");
+                },
+            },
+            {
+                "unmatched Hypnogram",
+                [](eeg_to_hypnogram::DatasetManifest *manifest)
+                {
+                    manifest->unmatchedHypnogramFiles.push_back("unmatched-Hypnogram.edf");
+                },
+            },
+            {
+                "duplicate PSG key",
+                [](eeg_to_hypnogram::DatasetManifest *manifest)
+                {
+                    manifest->duplicatePsgKeys.push_back("SC4001E");
+                },
+            },
+            {
+                "duplicate Hypnogram key",
+                [](eeg_to_hypnogram::DatasetManifest *manifest)
+                {
+                    manifest->duplicateHypnogramKeys.push_back("SC4001E");
+                },
+            },
+            {
+                "duplicate input path",
+                [](eeg_to_hypnogram::DatasetManifest *manifest)
+                {
+                    manifest->duplicateInputPaths.push_back("SC4001E0-PSG.edf");
+                },
+            },
+            {
+                "unrecognized EDF",
+                [](eeg_to_hypnogram::DatasetManifest *manifest)
+                {
+                    manifest->unrecognizedEdfFiles.push_back("unknown.edf");
+                },
+            },
+        };
+
+        for (const auto &dirtyCase : dirtyCases)
+        {
+            eeg_to_hypnogram::DatasetManifest manifest =
+                MakeManifestFromSyntheticPairs({pair});
+            dirtyCase.mutate(&manifest);
+            X.clear();
+            y.clear();
+
+            RequireThrows<std::invalid_argument>(
+                [&]
+                {
+                    eeg_to_hypnogram::AppendDatasetFromManifest(
+                        manifest,
+                        "dirty-manifest-" + dirtyCase.name,
+                        context,
+                        &X,
+                        &y,
+                        nullptr);
+                },
+                "Dirty manifest must be rejected: " + dirtyCase.name);
+        }
+
+        eeg_to_hypnogram::DatasetManifest ignoredAllowed =
+            MakeManifestFromSyntheticPairs({pair});
+        ignoredAllowed.ignoredFiles.push_back("README.txt");
+
+        X.clear();
+        y.clear();
+
+        eeg_to_hypnogram::AppendDatasetFromManifest(
+            ignoredAllowed,
+            "ignored-files-allowed",
+            context,
+            &X,
+            &y,
+            nullptr);
+
+        Require(!X.empty(), "ignoredFiles must not block dataset assembly.");
+        Require(X.size() == y.size(), "ignoredFiles assembly X/y counts changed.");
+    }
+
     void TestAppendToExistingOutput(const SyntheticPair &pair)
     {
         std::vector<std::vector<double>> expectedAddedX;
@@ -1047,6 +1277,97 @@ namespace
 
     void RunRealSleepEdfIntegrationIfConfigured()
     {
+        const char *datasetDirectory =
+            std::getenv("EEG_SLEEP_EDF_DATASET_DIR");
+
+        if (datasetDirectory != nullptr &&
+            *datasetDirectory != '\0')
+        {
+            eeg_to_hypnogram::DatasetManifestScanConfig scan;
+            scan.recursive = true;
+
+            const eeg_to_hypnogram::DatasetManifest manifest =
+                eeg_to_hypnogram::BuildDatasetManifest(
+                    datasetDirectory,
+                    scan);
+
+            Require(
+                manifest.pairs.size() == 153,
+                "Real Sleep-EDF manifest pair count must remain 153.");
+            Require(
+                manifest.unmatchedPsgFiles.empty(),
+                "Real Sleep-EDF manifest must not have unmatched PSG files.");
+            Require(
+                manifest.unmatchedHypnogramFiles.empty(),
+                "Real Sleep-EDF manifest must not have unmatched Hypnogram files.");
+            Require(
+                manifest.duplicatePsgKeys.empty(),
+                "Real Sleep-EDF manifest must not have duplicate PSG keys.");
+            Require(
+                manifest.duplicateHypnogramKeys.empty(),
+                "Real Sleep-EDF manifest must not have duplicate Hypnogram keys.");
+            Require(
+                manifest.duplicateInputPaths.empty(),
+                "Real Sleep-EDF manifest must not have duplicate input paths.");
+            Require(
+                manifest.unrecognizedEdfFiles.empty(),
+                "Real Sleep-EDF manifest must not have unrecognized EDF files.");
+
+            const auto chosenPair = std::find_if(
+                manifest.pairs.begin(),
+                manifest.pairs.end(),
+                [](const eeg_to_hypnogram::SleepEdfFilePair &pair)
+                {
+                    return pair.recordingId == "SC4001E";
+                });
+
+            Require(
+                chosenPair != manifest.pairs.end(),
+                "Real Sleep-EDF manifest must contain SC4001E.");
+
+            eeg_to_hypnogram::DatasetManifest singletonManifest;
+            singletonManifest.pairs.push_back(*chosenPair);
+
+            std::vector<std::vector<double>> X;
+            std::vector<int> y;
+            eeg_to_hypnogram::FeaturePipelineSummary summary;
+
+            eeg_to_hypnogram::AppendDatasetFromManifest(
+                singletonManifest,
+                "real-sleep-edf",
+                eeg_to_hypnogram::TemporalContextConfig(),
+                &X,
+                &y,
+                &summary);
+
+            Require(!X.empty(), "Real Sleep-EDF must produce features.");
+            Require(X.size() == y.size(), "Real Sleep-EDF X/y counts must match.");
+            Require(summary.channelCount > 0 && summary.channelCount <= 7, "Real channel count must be in [1, 7].");
+            Require(summary.baseFeatureDim == summary.channelCount * 5, "Real base dimension must equal channels x five bands.");
+            Require(summary.temporalFeatureDim == summary.baseFeatureDim * 5, "Real default temporal dimension must be five base blocks.");
+
+            for (int label : y)
+            {
+                Require(label >= 0 && label <= 4, "Real labels must be in [0, 4].");
+            }
+
+            const std::string psgName =
+                std::filesystem::path(chosenPair->psgPath).filename().string();
+
+            if (psgName == "SC4001E0-PSG.edf")
+            {
+                Require(X.size() == 841, "SC4001E0 must preserve the known 841-epoch result.");
+            }
+
+            std::cout
+                << "Dataset Builder real integration test passed\n"
+                << "epochs=" << X.size() << '\n'
+                << "channels=" << summary.channelCount << '\n'
+                << "base_feature_dim=" << summary.baseFeatureDim << '\n'
+                << "temporal_feature_dim=" << summary.temporalFeatureDim << '\n';
+            return;
+        }
+
         const char *psgPath = std::getenv("EEG_TEST_EDF_FILE");
         const char *hypnogramPath =
             std::getenv("EEG_TEST_HYPNOGRAM_FILE");
@@ -1056,16 +1377,26 @@ namespace
         {
             std::cout
                 << "Real Dataset Builder integration test skipped: "
-                << "EEG_TEST_EDF_FILE and EEG_TEST_HYPNOGRAM_FILE are not both set.\n";
+                << "EEG_SLEEP_EDF_DATASET_DIR or EEG_TEST_EDF_FILE/EEG_TEST_HYPNOGRAM_FILE must be set.\n";
             return;
         }
+
+        eeg_to_hypnogram::DatasetManifest singletonManifest;
+        singletonManifest.pairs.push_back(
+            {
+                "REAL",
+                "REAL1A",
+                "1",
+                psgPath,
+                hypnogramPath,
+            });
 
         std::vector<std::vector<double>> X;
         std::vector<int> y;
         eeg_to_hypnogram::FeaturePipelineSummary summary;
 
-        eeg_to_hypnogram::AppendDatasetFromPairs(
-            {{psgPath, hypnogramPath}},
+        eeg_to_hypnogram::AppendDatasetFromManifest(
+            singletonManifest,
             "real-sleep-edf",
             eeg_to_hypnogram::TemporalContextConfig(),
             &X,
@@ -1158,6 +1489,10 @@ int main()
         TestMultiFileOrderAndNoCrossFileContext(
             firstPair,
             secondPair);
+        TestManifestEntryMatchesPairEntryAndPreservesOrder(
+            firstPair,
+            secondPair);
+        TestManifestValidationAndIgnoredFiles(firstPair);
         TestAppendToExistingOutput(firstPair);
         TestSummaryAndDimensionMismatch(
             firstPair,

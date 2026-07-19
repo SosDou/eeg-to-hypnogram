@@ -1,5 +1,6 @@
 #pragma once
 
+#include "eeg_to_hypnogram/dataset_manifest.h"
 #include "eeg_to_hypnogram/temporal_context.h"
 
 #include <string>
@@ -53,6 +54,17 @@ namespace eeg_to_hypnogram
     // 每个 PSG 文件独立构建时间上下文，不跨文件拼接。
     void AppendDatasetFromPairs(
         const std::vector<DatasetFilePair> &pairs,
+        const std::string &splitName,
+        const TemporalContextConfig &contextConfig,
+        std::vector<std::vector<double>> *XOut,
+        std::vector<int> *yOut,
+        FeaturePipelineSummary *summaryOut = nullptr);
+
+    // 从 DatasetManifest 中的完整 PSG/Hypnogram pairs 构建有标签数据集。
+    // Manifest 入口只做清单校验和路径适配，实际构建仍复用
+    // AppendDatasetFromPairs。
+    void AppendDatasetFromManifest(
+        const DatasetManifest &manifest,
         const std::string &splitName,
         const TemporalContextConfig &contextConfig,
         std::vector<std::vector<double>> *XOut,
